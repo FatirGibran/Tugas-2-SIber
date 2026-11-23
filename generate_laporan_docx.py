@@ -748,8 +748,8 @@ def build_laporan():
         c_body.width = Inches(6.5)
         doc.add_paragraph().paragraph_format.space_after = Pt(6)
 
-    add_capture_placeholder("CAP-01", "Tangkapan Layar: Halaman Detail Model dan Kontributor (Fatir Gibran)")
-    add_capture_placeholder("CAP-02", "Tangkapan Layar: Kanvas Utuh DFD Level-1 Sistem Presensi (Fatir Gibran)", "dfd_kasus_a.png")
+    add_capture_placeholder("CAP-01", "Tangkapan Layar: Halaman Detail Model dan Kontributor (Fatir Gibran)", "cap_01_summary.png")
+    add_capture_placeholder("CAP-02", "Tangkapan Layar: Kanvas Utuh DFD Level-1 Sistem Presensi (Fatir Gibran)", "cap_02_dfd.png")
     add_capture_placeholder("CAP-03", "Tangkapan Layar: Form Entri Ancaman Spoofing / Tampering (Tio Armani)")
     add_capture_placeholder("CAP-04", "Tangkapan Layar: Form Entri Ancaman Repudiation / DoS / EoP (Chadafya Putra Zulfikar)")
     add_capture_placeholder("CAP-05", "Tangkapan Layar: Pengaturan Centang Ekspor Report (Tedy Permana Putra)")
