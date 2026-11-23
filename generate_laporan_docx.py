@@ -753,7 +753,7 @@ def build_laporan():
     add_capture_placeholder("CAP-03", "Tangkapan Layar: Form Entri Ancaman Spoofing / Tampering (Tio Armani)")
     add_capture_placeholder("CAP-04", "Tangkapan Layar: Form Entri Ancaman Repudiation / DoS / EoP (Chadafya Putra Zulfikar)")
     add_capture_placeholder("CAP-05", "Tangkapan Layar: Pengaturan Centang Ekspor Report (Tedy Permana Putra)")
-    add_capture_placeholder("CAP-06", "Tangkapan Layar: Hasil Ekspor Laporan PDF Tool (Tedy Permana Putra)")
+    add_capture_placeholder("CAP-06", "Tangkapan Layar: Hasil Ekspor Laporan PDF Tool (Tedy Permana Putra)", "cap_06_pdf_p1.png")
 
     output_path = "Laporan_Threat_Modeling_Kasus_A_Presensi_QR.docx"
     doc.save(output_path)
