@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-Script to generate Presentasi_Threat_Modeling_Kasus_A_Presensi_QR.pptx
+Script to generate updated Presentasi_Threat_Modeling_Kasus_A_Presensi_QR.pptx
 Professional 16:9 widescreen presentation deck using python-pptx.
-High aesthetic quality, clean card layouts, strong typography, structured tables, and embedded diagrams.
+Now enriched with 13 comprehensive slides, featuring actual visual proof screenshots
+for Fatir Gibran, Tio Armani, Chadafya Putra Zulfikar, and Tedy Permana Putra.
 """
 
 import os
 import pptx
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
+from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
 
 # ==========================================
@@ -47,8 +48,7 @@ FONT_BODY = "Calibri"
 
 def create_slide_header(slide, title_text, category_text="KEAMANAN SIBER (CAK3CAB3) • STUDI KASUS A"):
     """Creates a consistent, professional header across content slides."""
-    # Category / Breadcrumb
-    cat_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.7), Inches(0.35))
+    cat_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.35), Inches(11.7), Inches(0.35))
     tf_c = cat_box.text_frame
     tf_c.word_wrap = True
     p_c = tf_c.paragraphs[0]
@@ -58,14 +58,13 @@ def create_slide_header(slide, title_text, category_text="KEAMANAN SIBER (CAK3CA
     p_c.font.bold = True
     p_c.font.color.rgb = BLUE_PRIMARY
 
-    # Slide Title
-    title_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.68), Inches(11.7), Inches(0.65))
+    title_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.65), Inches(11.7), Inches(0.65))
     tf_t = title_box.text_frame
     tf_t.word_wrap = True
     p_t = tf_t.paragraphs[0]
     p_t.text = title_text
     p_t.font.name = FONT_HEADING
-    p_t.font.size = Pt(22)
+    p_t.font.size = Pt(21)
     p_t.font.bold = True
     p_t.font.color.rgb = NAVY_DARK
 
@@ -88,7 +87,7 @@ def build_presentation():
     blank_layout = prs.slide_layouts[6]
 
     # ==========================================
-    # SLIDE 1: COVER / TITLE SLIDE (Dark Elegance)
+    # SLIDE 1: COVER / TITLE SLIDE (Dark Theme)
     # ==========================================
     s1 = prs.slides.add_slide(blank_layout)
     bg1 = s1.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, Inches(13.333), Inches(7.5))
@@ -96,14 +95,12 @@ def build_presentation():
     bg1.fill.fore_color.rgb = NAVY_DARK
     bg1.line.fill.background()
 
-    # Decorative accent glow line
-    acc1 = s1.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(1.1), Inches(1.5), Inches(0.06))
+    acc1 = s1.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(1.0), Inches(1.5), Inches(0.06))
     acc1.fill.solid()
     acc1.fill.fore_color.rgb = CYAN_ACCENT
     acc1.line.fill.background()
 
-    # Badge: Mata Kuliah & Kasus
-    b_tag = s1.shapes.add_textbox(Inches(0.8), Inches(1.3), Inches(10), Inches(0.4))
+    b_tag = s1.shapes.add_textbox(Inches(0.8), Inches(1.15), Inches(10), Inches(0.4))
     p_bt = b_tag.text_frame.paragraphs[0]
     p_bt.text = "KEAMANAN SIBER (CAK3CAB3) • SEMESTER GANJIL 2026/2027"
     p_bt.font.name = FONT_BODY
@@ -111,8 +108,7 @@ def build_presentation():
     p_bt.font.bold = True
     p_bt.font.color.rgb = CYAN_ACCENT
 
-    # Main Title
-    t_box = s1.shapes.add_textbox(Inches(0.8), Inches(1.7), Inches(11.7), Inches(1.5))
+    t_box = s1.shapes.add_textbox(Inches(0.8), Inches(1.55), Inches(11.7), Inches(1.5))
     tf_m = t_box.text_frame
     tf_m.word_wrap = True
     p_m = tf_m.paragraphs[0]
@@ -122,15 +118,13 @@ def build_presentation():
     p_m.font.bold = True
     p_m.font.color.rgb = TEXT_WHITE
 
-    # Subtitle
-    sub_box = s1.shapes.add_textbox(Inches(0.8), Inches(3.25), Inches(11.7), Inches(0.6))
+    sub_box = s1.shapes.add_textbox(Inches(0.8), Inches(3.1), Inches(11.7), Inches(0.6))
     p_sub = sub_box.text_frame.paragraphs[0]
     p_sub.text = "Studi Kasus A: Sistem Presensi Perkuliahan Berbasis QR Code"
     p_sub.font.name = FONT_BODY
     p_sub.font.size = Pt(16)
-    p_sub.font.color.rgb = RGBColor(203, 213, 225) # Slate 300
+    p_sub.font.color.rgb = RGBColor(203, 213, 225)
 
-    # Team Members 4-Column Card Grid
     members = [
         ("Fatir Gibran", "103112430153", "Ketua Tim & Pemodel DFD"),
         ("Tio Armani", "103112430225", "Analis Spoofing & Tampering"),
@@ -142,17 +136,17 @@ def build_presentation():
     card_h = Inches(1.8)
     card_gap = Inches(0.3)
     start_x = Inches(0.8)
-    start_y = Inches(4.3)
+    start_y = Inches(4.2)
 
     for i, (name, nim, role) in enumerate(members):
         cx = start_x + i * (card_w + card_gap)
         c_shape = s1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, cx, start_y, card_w, card_h)
         c_shape.fill.solid()
         c_shape.fill.fore_color.rgb = SLATE_DARK
-        c_shape.line.color.rgb = RGBColor(51, 65, 85) # Slate 700
+        c_shape.line.color.rgb = RGBColor(51, 65, 85)
         c_shape.line.width = Pt(1)
 
-        tb_mem = s1.shapes.add_textbox(cx + Inches(0.15), start_y + Inches(0.2), card_w - Inches(0.3), card_h - Inches(0.3))
+        tb_mem = s1.shapes.add_textbox(cx + Inches(0.15), start_y + Inches(0.18), card_w - Inches(0.3), card_h - Inches(0.3))
         tf_mem = tb_mem.text_frame
         tf_mem.word_wrap = True
 
@@ -173,9 +167,8 @@ def build_presentation():
         p3.text = role
         p3.font.name = FONT_BODY
         p3.font.size = Pt(9.5)
-        p3.font.color.rgb = RGBColor(148, 163, 184) # Slate 400
+        p3.font.color.rgb = RGBColor(148, 163, 184)
 
-    # Reviewer footer tag
     rf_box = s1.shapes.add_textbox(Inches(0.8), Inches(6.4), Inches(11.7), Inches(0.4))
     p_rf = rf_box.text_frame.paragraphs[0]
     p_rf.text = "Reviewer: Dosen Praktikum Keamanan Siber • Alat: OWASP Threat Dragon v2.6.2"
@@ -189,16 +182,15 @@ def build_presentation():
     s2 = prs.slides.add_slide(blank_layout)
     create_slide_header(s2, "Latar Belakang & Ruang Lingkup Sistem Presensi QR")
 
-    # Card 1: Konsep & Alur Sistem (Kiri)
-    add_card(s2, Inches(0.8), Inches(1.5), Inches(5.6), Inches(5.4))
-    tb_c1 = s2.shapes.add_textbox(Inches(1.1), Inches(1.7), Inches(5.0), Inches(5.0))
+    add_card(s2, Inches(0.8), Inches(1.4), Inches(5.6), Inches(5.6))
+    tb_c1 = s2.shapes.add_textbox(Inches(1.1), Inches(1.6), Inches(5.0), Inches(5.2))
     tf1 = tb_c1.text_frame
     tf1.word_wrap = True
 
     p = tf1.paragraphs[0]
     p.text = "Karakteristik & Alur Bisnis Sistem"
     p.font.name = FONT_HEADING
-    p.font.size = Pt(16)
+    p.font.size = Pt(15)
     p.font.bold = True
     p.font.color.rgb = NAVY_DARK
 
@@ -215,23 +207,22 @@ def build_presentation():
         r1 = p.add_run()
         r1.text = "• " + b_title
         r1.font.bold = True
-        r1.font.size = Pt(10.5)
+        r1.font.size = Pt(10)
         r1.font.color.rgb = BLUE_PRIMARY
         r2 = p.add_run()
         r2.text = b_desc
-        r2.font.size = Pt(10.5)
+        r2.font.size = Pt(10)
         r2.font.color.rgb = TEXT_MAIN
 
-    # Card 2: Batasan Lingkup Analisis (Kanan)
-    add_card(s2, Inches(6.8), Inches(1.5), Inches(5.7), Inches(5.4))
-    tb_c2 = s2.shapes.add_textbox(Inches(7.1), Inches(1.7), Inches(5.1), Inches(5.0))
+    add_card(s2, Inches(6.8), Inches(1.4), Inches(5.7), Inches(5.6))
+    tb_c2 = s2.shapes.add_textbox(Inches(7.1), Inches(1.6), Inches(5.1), Inches(5.2))
     tf2 = tb_c2.text_frame
     tf2.word_wrap = True
 
     p = tf2.paragraphs[0]
     p.text = "Batasan Ruang Lingkup Analisis"
     p.font.name = FONT_HEADING
-    p.font.size = Pt(16)
+    p.font.size = Pt(15)
     p.font.bold = True
     p.font.color.rgb = NAVY_DARK
 
@@ -252,11 +243,11 @@ def build_presentation():
     for it in in_items:
         p = tf2.add_paragraph()
         p.text = "✔ " + it
-        p.font.size = Pt(10)
+        p.font.size = Pt(9.5)
         p.font.color.rgb = TEXT_MAIN
 
     p_out = tf2.add_paragraph()
-    p_out.space_before = Pt(14)
+    p_out.space_before = Pt(12)
     p_out.text = "DI LUAR LINGKUP ANALISIS (OUT-OF-SCOPE)"
     p_out.font.bold = True
     p_out.font.size = Pt(11)
@@ -270,7 +261,7 @@ def build_presentation():
     for it in out_items:
         p = tf2.add_paragraph()
         p.text = "✖ " + it
-        p.font.size = Pt(10)
+        p.font.size = Pt(9.5)
         p.font.color.rgb = TEXT_MUTED
 
     # ==========================================
@@ -279,9 +270,8 @@ def build_presentation():
     s3 = prs.slides.add_slide(blank_layout)
     create_slide_header(s3, "Aturan Bisnis & 5 Asumsi Teknis Perancangan")
 
-    # 3 Aturan Bisnis (Atas)
-    add_card(s3, Inches(0.8), Inches(1.5), Inches(11.7), Inches(2.2))
-    tb_br = s3.shapes.add_textbox(Inches(1.1), Inches(1.65), Inches(11.1), Inches(1.9))
+    add_card(s3, Inches(0.8), Inches(1.4), Inches(11.7), Inches(2.2))
+    tb_br = s3.shapes.add_textbox(Inches(1.1), Inches(1.55), Inches(11.1), Inches(1.9))
     tf_br = tb_br.text_frame
     tf_br.word_wrap = True
 
@@ -303,14 +293,13 @@ def build_presentation():
         r1 = p.add_run()
         r1.text = "• " + br_title
         r1.font.bold = True
-        r1.font.size = Pt(10.5)
+        r1.font.size = Pt(10)
         r1.font.color.rgb = NAVY_DARK
         r2 = p.add_run()
         r2.text = br_desc
-        r2.font.size = Pt(10.5)
+        r2.font.size = Pt(10)
         r2.font.color.rgb = TEXT_MAIN
 
-    # 5 Asumsi Teknis (Bawah: 5 Kolom Card)
     asumsi_items = [
         ("A1: Enkripsi TLS", "Komunikasi browser ke backend & backend ke SSO wajib menggunakan HTTPS/TLS terenkripsi."),
         ("A2: Standar SSO", "Layanan Autentikasi Kampus menerbitkan token bertanda tangan berbatas waktu (JWT)."),
@@ -320,9 +309,9 @@ def build_presentation():
     ]
 
     a_w = Inches(2.18)
-    a_h = Inches(2.9)
+    a_h = Inches(3.1)
     a_gap = Inches(0.2)
-    start_ay = Inches(3.9)
+    start_ay = Inches(3.8)
 
     for i, (a_title, a_desc) in enumerate(asumsi_items):
         ax = Inches(0.8) + i * (a_w + a_gap)
@@ -352,16 +341,15 @@ def build_presentation():
     s4 = prs.slides.add_slide(blank_layout)
     create_slide_header(s4, "Arsitektur Data Flow Diagram (DFD) Level-1")
 
-    # Kiri: Inventarisasi Komponen DFD
-    add_card(s4, Inches(0.8), Inches(1.5), Inches(4.5), Inches(5.4))
-    tb_dfd = s4.shapes.add_textbox(Inches(1.0), Inches(1.7), Inches(4.1), Inches(5.0))
+    add_card(s4, Inches(0.8), Inches(1.4), Inches(4.5), Inches(5.6))
+    tb_dfd = s4.shapes.add_textbox(Inches(1.0), Inches(1.6), Inches(4.1), Inches(5.2))
     tf_d = tb_dfd.text_frame
     tf_d.word_wrap = True
 
     p = tf_d.paragraphs[0]
     p.text = "Struktur Komponen Sistem"
     p.font.name = FONT_HEADING
-    p.font.size = Pt(16)
+    p.font.size = Pt(15)
     p.font.bold = True
     p.font.color.rgb = NAVY_DARK
 
@@ -376,18 +364,17 @@ def build_presentation():
         p.space_before = Pt(8)
         p.text = c_title
         p.font.bold = True
-        p.font.size = Pt(11)
+        p.font.size = Pt(10.5)
         p.font.color.rgb = BLUE_PRIMARY
 
         p2 = tf_d.add_paragraph()
         p2.text = c_desc
-        p2.font.size = Pt(9.5)
+        p2.font.size = Pt(9)
         p2.font.color.rgb = TEXT_MAIN
 
-    # Kanan: Gambar Diagram DFD
-    add_card(s4, Inches(5.6), Inches(1.5), Inches(6.9), Inches(5.4))
+    add_card(s4, Inches(5.6), Inches(1.4), Inches(6.9), Inches(5.6))
     if os.path.exists("dfd_kasus_a.png"):
-        s4.shapes.add_picture("dfd_kasus_a.png", Inches(5.75), Inches(1.65), width=Inches(6.6))
+        s4.shapes.add_picture("dfd_kasus_a.png", Inches(5.75), Inches(1.55), width=Inches(6.6))
 
     # ==========================================
     # SLIDE 5: BATAS KEPERCAYAAN (TRUST BOUNDARIES)
@@ -411,11 +398,10 @@ def build_presentation():
     ]
 
     tb_w = Inches(5.6)
-    tb_h = Inches(2.5)
-
+    tb_h = Inches(2.6)
     coords = [
-        (Inches(0.8), Inches(1.5)),
-        (Inches(6.8), Inches(1.5)),
+        (Inches(0.8), Inches(1.4)),
+        (Inches(6.8), Inches(1.4)),
         (Inches(0.8), Inches(4.3)),
         (Inches(6.8), Inches(4.3))
     ]
@@ -453,16 +439,15 @@ def build_presentation():
     s6 = prs.slides.add_slide(blank_layout)
     create_slide_header(s6, "Metodologi Analisis STRIDE & Rubrik Penilaian Risiko")
 
-    # Kiri: 6 Kategori STRIDE
-    add_card(s6, Inches(0.8), Inches(1.5), Inches(6.0), Inches(5.4))
-    tb_st = s6.shapes.add_textbox(Inches(1.0), Inches(1.7), Inches(5.6), Inches(5.0))
+    add_card(s6, Inches(0.8), Inches(1.4), Inches(6.0), Inches(5.6))
+    tb_st = s6.shapes.add_textbox(Inches(1.0), Inches(1.6), Inches(5.6), Inches(5.2))
     tf_st = tb_st.text_frame
     tf_st.word_wrap = True
 
     p = tf_st.paragraphs[0]
     p.text = "Kerangka Kerja STRIDE"
     p.font.name = FONT_HEADING
-    p.font.size = Pt(16)
+    p.font.size = Pt(15)
     p.font.bold = True
     p.font.color.rgb = NAVY_DARK
 
@@ -480,23 +465,22 @@ def build_presentation():
         r1 = p.add_run()
         r1.text = s_title + " "
         r1.font.bold = True
-        r1.font.size = Pt(10.5)
+        r1.font.size = Pt(10)
         r1.font.color.rgb = BLUE_PRIMARY
         r2 = p.add_run()
         r2.text = s_desc
         r2.font.size = Pt(9.5)
         r2.font.color.rgb = TEXT_MAIN
 
-    # Kanan: Rubrik Penilaian Risiko (Skor = L x D)
-    add_card(s6, Inches(7.1), Inches(1.5), Inches(5.4), Inches(5.4))
-    tb_rb = s6.shapes.add_textbox(Inches(7.3), Inches(1.7), Inches(5.0), Inches(5.0))
+    add_card(s6, Inches(7.1), Inches(1.4), Inches(5.4), Inches(5.6))
+    tb_rb = s6.shapes.add_textbox(Inches(7.3), Inches(1.6), Inches(5.0), Inches(5.2))
     tf_rb = tb_rb.text_frame
     tf_rb.word_wrap = True
 
     p = tf_rb.paragraphs[0]
     p.text = "Rubrik Evaluasi Risiko (L × D)"
     p.font.name = FONT_HEADING
-    p.font.size = Pt(16)
+    p.font.size = Pt(15)
     p.font.bold = True
     p.font.color.rgb = NAVY_DARK
 
@@ -517,7 +501,7 @@ def build_presentation():
         p.space_before = Pt(8)
         p.text = r_title
         p.font.bold = True
-        p.font.size = Pt(10.5)
+        p.font.size = Pt(10)
         p.font.color.rgb = NAVY_DARK
 
         p2 = tf_rb.add_paragraph()
@@ -531,16 +515,15 @@ def build_presentation():
     s7 = prs.slides.add_slide(blank_layout)
     create_slide_header(s7, "Register Ancaman: Spoofing & Tampering (T01–T07)", "ANALISIS: TIO ARMANI (103112430225)")
 
-    # Table of T01 - T07
     rows = 8
     cols = 5
-    table_shape = s7.shapes.add_table(rows, cols, Inches(0.8), Inches(1.5), Inches(11.7), Inches(5.4))
+    table_shape = s7.shapes.add_table(rows, cols, Inches(0.8), Inches(1.4), Inches(11.7), Inches(5.6))
     table = table_shape.table
-    table.columns[0].width = Inches(0.8)  # ID
-    table.columns[1].width = Inches(3.2)  # Judul Ancaman
-    table.columns[2].width = Inches(1.3)  # STRIDE & El
-    table.columns[3].width = Inches(1.5)  # Skor Risiko
-    table.columns[4].width = Inches(4.9)  # Rekomendasi Mitigasi Teknis
+    table.columns[0].width = Inches(0.8)
+    table.columns[1].width = Inches(3.2)
+    table.columns[2].width = Inches(1.3)
+    table.columns[3].width = Inches(1.5)
+    table.columns[4].width = Inches(4.9)
 
     headers = ["ID", "Judul Ancaman Spesifik", "Tipe / Elemen", "Skor Risiko", "Rekomendasi Mitigasi Teknis"]
     for c_i, h in enumerate(headers):
@@ -586,7 +569,7 @@ def build_presentation():
     s8 = prs.slides.add_slide(blank_layout)
     create_slide_header(s8, "Register Ancaman: R, I, D, E (T08–T14)", "ANALISIS: CHADAFYA PUTRA ZULFIKAR (103112430173)")
 
-    table_shape8 = s8.shapes.add_table(rows, cols, Inches(0.8), Inches(1.5), Inches(11.7), Inches(5.4))
+    table_shape8 = s8.shapes.add_table(rows, cols, Inches(0.8), Inches(1.4), Inches(11.7), Inches(5.6))
     table8 = table_shape8.table
     table8.columns[0].width = Inches(0.8)
     table8.columns[1].width = Inches(3.2)
@@ -637,16 +620,15 @@ def build_presentation():
     s9 = prs.slides.add_slide(blank_layout)
     create_slide_header(s9, "Matriks Evaluasi Risiko & Prioritas Remediasi", "EVALUASI RISIKO: TEDY PERMANA PUTRA (103112430157)")
 
-    # Kiri: Matriks 3x3
-    add_card(s9, Inches(0.8), Inches(1.5), Inches(5.6), Inches(5.4))
-    tb_m = s9.shapes.add_textbox(Inches(1.0), Inches(1.7), Inches(5.2), Inches(5.0))
+    add_card(s9, Inches(0.8), Inches(1.4), Inches(5.6), Inches(5.6))
+    tb_m = s9.shapes.add_textbox(Inches(1.0), Inches(1.6), Inches(5.2), Inches(5.2))
     tf_m = tb_m.text_frame
     tf_m.word_wrap = True
 
     p = tf_m.paragraphs[0]
     p.text = "Pemetaan Matriks Risiko 3 × 3"
     p.font.name = FONT_HEADING
-    p.font.size = Pt(16)
+    p.font.size = Pt(15)
     p.font.bold = True
     p.font.color.rgb = NAVY_DARK
 
@@ -661,7 +643,7 @@ def build_presentation():
         p.space_before = Pt(8)
         p.text = m_title
         p.font.bold = True
-        p.font.size = Pt(11)
+        p.font.size = Pt(10.5)
         p.font.color.rgb = BLUE_PRIMARY
 
         p2 = tf_m.add_paragraph()
@@ -669,16 +651,15 @@ def build_presentation():
         p2.font.size = Pt(9.5)
         p2.font.color.rgb = TEXT_MAIN
 
-    # Kanan: 4 Klaster Prioritas Tindakan
-    add_card(s9, Inches(6.8), Inches(1.5), Inches(5.7), Inches(5.4))
-    tb_p = s9.shapes.add_textbox(Inches(7.0), Inches(1.7), Inches(5.3), Inches(5.0))
+    add_card(s9, Inches(6.8), Inches(1.4), Inches(5.7), Inches(5.6))
+    tb_p = s9.shapes.add_textbox(Inches(7.0), Inches(1.6), Inches(5.3), Inches(5.2))
     tf_p = tb_p.text_frame
     tf_p.word_wrap = True
 
     p = tf_p.paragraphs[0]
     p.text = "4 Klaster Urutan Prioritas Mitigasi"
     p.font.name = FONT_HEADING
-    p.font.size = Pt(16)
+    p.font.size = Pt(15)
     p.font.bold = True
     p.font.color.rgb = NAVY_DARK
 
@@ -697,7 +678,7 @@ def build_presentation():
         p.space_before = Pt(8)
         p.text = p_title
         p.font.bold = True
-        p.font.size = Pt(11)
+        p.font.size = Pt(10.5)
         p.font.color.rgb = p_color
 
         p2 = tf_p.add_paragraph()
@@ -706,56 +687,104 @@ def build_presentation():
         p2.font.color.rgb = TEXT_MAIN
 
     # ==========================================
-    # SLIDE 10: IMPLEMENTASI DI OWASP THREAT DRAGON
+    # SLIDE 10: BUKTI PRAKTIKUM 1 (Fatir Gibran: Model & DFD)
     # ==========================================
     s10 = prs.slides.add_slide(blank_layout)
-    create_slide_header(s10, "Implementasi Model di OWASP Threat Dragon v2")
+    create_slide_header(s10, "Bukti Praktikum Tool: Detail Model & DFD di Threat Dragon", "BUKTI EKSEKUSI: FATIR GIBRAN (103112430153)")
 
-    # Kiri: Screenshot Ekspor / Model Report
-    add_card(s10, Inches(0.8), Inches(1.5), Inches(6.0), Inches(5.4))
+    add_card(s10, Inches(0.8), Inches(1.4), Inches(5.6), Inches(5.6))
+    tb_b1 = s10.shapes.add_textbox(Inches(1.0), Inches(1.55), Inches(5.2), Inches(0.4))
+    tb_b1.text_frame.paragraphs[0].text = "CAP-01: Detail Model & Identitas Tim di Tool"
+    tb_b1.text_frame.paragraphs[0].font.bold = True
+    tb_b1.text_frame.paragraphs[0].font.size = Pt(11)
+    tb_b1.text_frame.paragraphs[0].font.color.rgb = NAVY_DARK
+
     if os.path.exists("cap_01_summary.png"):
-        s10.shapes.add_picture("cap_01_summary.png", Inches(0.95), Inches(1.65), width=Inches(5.7))
+        s10.shapes.add_picture("cap_01_summary.png", Inches(1.0), Inches(2.05), width=Inches(5.2))
 
-    # Kanan: Poin Verifikasi Kelayakan
-    add_card(s10, Inches(7.1), Inches(1.5), Inches(5.4), Inches(5.4))
-    tb_v = s10.shapes.add_textbox(Inches(7.3), Inches(1.7), Inches(5.0), Inches(5.0))
-    tf_v = tb_v.text_frame
-    tf_v.word_wrap = True
+    add_card(s10, Inches(6.8), Inches(1.4), Inches(5.7), Inches(5.6))
+    tb_b2 = s10.shapes.add_textbox(Inches(7.0), Inches(1.55), Inches(5.3), Inches(0.4))
+    tb_b2.text_frame.paragraphs[0].text = "CAP-02: Kanvas Utuh DFD di Threat Dragon"
+    tb_b2.text_frame.paragraphs[0].font.bold = True
+    tb_b2.text_frame.paragraphs[0].font.size = Pt(11)
+    tb_b2.text_frame.paragraphs[0].font.color.rgb = NAVY_DARK
 
-    p = tf_v.paragraphs[0]
-    p.text = "Bukti Autentik Praktikum"
-    p.font.name = FONT_HEADING
-    p.font.size = Pt(16)
-    p.font.bold = True
-    p.font.color.rgb = NAVY_DARK
-
-    v_points = [
-        ("Validasi Model Utuh:", "Model KasusA_KelompokXX_FINAL.json memuat 28 sel diagram: 4 aktor, 3 proses, 1 database, 16 data flow, dan 4 trust boundary."),
-        ("14 Ancaman Terpetakan:", "Seluruh 14 ancaman terhubung ke elemen spesifik dengan metadata Title, STRIDE Type, Severity, Skenario, dan Mitigasi."),
-        ("Status Seluruh Ancaman 'Open':", "Status tetap Open karena mitigasi yang dirumuskan merupakan rekomendasi desain arsitektur sebelum diverifikasi dalam implementasi kode."),
-        ("Ekspor Laporan PDF Resmi:", "Fitur Report Threat Dragon berhasil mencetak laporan 9 halaman lengkap mencakup diagram hingga element properties."),
-        ("Uji Buka Ulang (Re-open Test):", "Model berhasil ditutup dan dibuka kembali tanpa korupsi sintaks JSON.")
-    ]
-    for vp_title, vp_desc in v_points:
-        p = tf_v.add_paragraph()
-        p.space_before = Pt(6)
-        p.text = vp_title
-        p.font.bold = True
-        p.font.size = Pt(11)
-        p.font.color.rgb = BLUE_PRIMARY
-
-        p2 = tf_v.add_paragraph()
-        p2.text = vp_desc
-        p2.font.size = Pt(9.5)
-        p2.font.color.rgb = TEXT_MAIN
+    if os.path.exists("cap_02_dfd.png"):
+        s10.shapes.add_picture("cap_02_dfd.png", Inches(7.0), Inches(2.05), width=Inches(5.3))
 
     # ==========================================
-    # SLIDE 11: KESIMPULAN & REKOMENDASI ARSITEKTURAL
+    # SLIDE 11: BUKTI PRAKTIKUM 2 (Tio, Chadafya, Tedy)
     # ==========================================
     s11 = prs.slides.add_slide(blank_layout)
-    create_slide_header(s11, "Kesimpulan & Rekomendasi Keamanan Arsitektural")
+    create_slide_header(s11, "Bukti Praktikum Tool: Dokumentasi Ancaman & Laporan PDF", "BUKTI EKSEKUSI TIM: TIO, CHADAFYA, TEDY")
 
-    # 3 Big Recommendation Cards
+    col_w = Inches(3.7)
+    col_h = Inches(5.6)
+    col_gap = Inches(0.3)
+
+    # Col 1: Tio Armani (CAP-03)
+    add_card(s11, Inches(0.8), Inches(1.4), col_w, col_h)
+    tb_t1 = s11.shapes.add_textbox(Inches(0.95), Inches(1.55), col_w - Inches(0.3), Inches(0.6))
+    tf_t1 = tb_t1.text_frame
+    tf_t1.word_wrap = True
+    p = tf_t1.paragraphs[0]
+    p.text = "CAP-03: Tio Armani"
+    p.font.bold = True
+    p.font.size = Pt(11)
+    p.font.color.rgb = BLUE_PRIMARY
+    p_sub = tf_t1.add_paragraph()
+    p_sub.text = "Entri Ancaman Spoofing (T01)"
+    p_sub.font.size = Pt(9.5)
+    p_sub.font.color.rgb = TEXT_MUTED
+
+    if os.path.exists("cap_03_tio.png"):
+        s11.shapes.add_picture("cap_03_tio.png", Inches(0.95), Inches(2.25), width=col_w - Inches(0.3))
+
+    # Col 2: Chadafya Putra Zulfikar (CAP-04)
+    add_card(s11, Inches(0.8) + col_w + col_gap, Inches(1.4), col_w, col_h)
+    tb_t2 = s11.shapes.add_textbox(Inches(0.8) + col_w + col_gap + Inches(0.15), Inches(1.55), col_w - Inches(0.3), Inches(0.6))
+    tf_t2 = tb_t2.text_frame
+    tf_t2.word_wrap = True
+    p = tf_t2.paragraphs[0]
+    p.text = "CAP-04: Chadafya Putra Z."
+    p.font.bold = True
+    p.font.size = Pt(11)
+    p.font.color.rgb = PURPLE_SEV
+    p_sub = tf_t2.add_paragraph()
+    p_sub.text = "Entri Ancaman R, D, E (T08, T11, T14)"
+    p_sub.font.size = Pt(9.5)
+    p_sub.font.color.rgb = TEXT_MUTED
+
+    if os.path.exists("cap_04_chadafya.png"):
+        s11.shapes.add_picture("cap_04_chadafya.png", Inches(0.8) + col_w + col_gap + Inches(0.15), Inches(2.25), width=col_w - Inches(0.3))
+
+    # Col 3: Tedy Permana Putra (CAP-05 & CAP-06)
+    add_card(s11, Inches(0.8) + (col_w + col_gap) * 2, Inches(1.4), col_w, col_h)
+    tb_t3 = s11.shapes.add_textbox(Inches(0.8) + (col_w + col_gap) * 2 + Inches(0.15), Inches(1.55), col_w - Inches(0.3), Inches(0.6))
+    tf_t3 = tb_t3.text_frame
+    tf_t3.word_wrap = True
+    p = tf_t3.paragraphs[0]
+    p.text = "CAP-05 & 06: Tedy Permana P."
+    p.font.bold = True
+    p.font.size = Pt(11)
+    p.font.color.rgb = GREEN_SEV
+    p_sub = tf_t3.add_paragraph()
+    p_sub.text = "Opsi Report & Ekspor Laporan PDF"
+    p_sub.font.size = Pt(9.5)
+    p_sub.font.color.rgb = TEXT_MUTED
+
+    if os.path.exists("cap_05_tedy.png"):
+        s11.shapes.add_picture("cap_05_tedy.png", Inches(0.8) + (col_w + col_gap) * 2 + Inches(0.15), Inches(2.25), width=col_w - Inches(0.3))
+
+    if os.path.exists("cap_06_pdf_p1.png"):
+        s11.shapes.add_picture("cap_06_pdf_p1.png", Inches(0.8) + (col_w + col_gap) * 2 + Inches(0.8), Inches(3.6), width=Inches(2.1))
+
+    # ==========================================
+    # SLIDE 12: KESIMPULAN & REKOMENDASI ARSITEKTURAL
+    # ==========================================
+    s12 = prs.slides.add_slide(blank_layout)
+    create_slide_header(s12, "Kesimpulan & Rekomendasi Keamanan Arsitektural")
+
     rec_cards = [
         ("1. Filosofi 'Shift-Left Security'", BLUE_PRIMARY,
          "Threat modeling membuktikan bahwa kerentanan keamanan paling efektif dan efisien diatasi pada tahap perancangan (design level) sebelum kode ditulis, mencegah biaya penambalan mahal di fase produksi."),
@@ -766,15 +795,15 @@ def build_presentation():
     ]
 
     r_w = Inches(3.7)
-    r_h = Inches(5.3)
+    r_h = Inches(5.6)
     r_gap = Inches(0.3)
     r_start_x = Inches(0.8)
 
     for i, (title, color, text) in enumerate(rec_cards):
         rx = r_start_x + i * (r_w + r_gap)
-        add_card(s11, rx, Inches(1.5), r_w, r_h, bg_color=CARD_BG, border_color=color, border_width=1.5)
+        add_card(s12, rx, Inches(1.4), r_w, r_h, bg_color=CARD_BG, border_color=color, border_width=1.5)
 
-        tb_r = s11.shapes.add_textbox(rx + Inches(0.2), Inches(1.75), r_w - Inches(0.4), r_h - Inches(0.5))
+        tb_r = s12.shapes.add_textbox(rx + Inches(0.2), Inches(1.65), r_w - Inches(0.4), r_h - Inches(0.5))
         tf_r = tb_r.text_frame
         tf_r.word_wrap = True
 
@@ -793,16 +822,15 @@ def build_presentation():
         p2.font.color.rgb = TEXT_MAIN
 
     # ==========================================
-    # SLIDE 12: SESI TANYA JAWAB (Q&A) & PENUTUP
+    # SLIDE 13: SESI TANYA JAWAB (Q&A) & PENUTUP
     # ==========================================
-    s12 = prs.slides.add_slide(blank_layout)
-    bg12 = s12.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, Inches(13.333), Inches(7.5))
-    bg12.fill.solid()
-    bg12.fill.fore_color.rgb = NAVY_DARK
-    bg12.line.fill.background()
+    s13 = prs.slides.add_slide(blank_layout)
+    bg13 = s13.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, Inches(13.333), Inches(7.5))
+    bg13.fill.solid()
+    bg13.fill.fore_color.rgb = NAVY_DARK
+    bg13.line.fill.background()
 
-    # Center box
-    tb_end = s12.shapes.add_textbox(Inches(1.5), Inches(1.8), Inches(10.3), Inches(4.0))
+    tb_end = s13.shapes.add_textbox(Inches(1.5), Inches(1.8), Inches(10.3), Inches(4.0))
     tf_e = tb_end.text_frame
     tf_e.word_wrap = True
 
@@ -840,7 +868,7 @@ def build_presentation():
 
     output_pptx = "Presentasi_Threat_Modeling_Kasus_A_Presensi_QR.pptx"
     prs.save(output_pptx)
-    print(f"Slide presentasi berhasil disimpan di {output_pptx}")
+    print(f"Slide presentasi berhasil diperbarui dan disimpan di {output_pptx}")
 
 if __name__ == "__main__":
     build_presentation()
