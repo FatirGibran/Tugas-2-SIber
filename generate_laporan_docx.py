@@ -750,9 +750,9 @@ def build_laporan():
 
     add_capture_placeholder("CAP-01", "Tangkapan Layar: Halaman Detail Model dan Kontributor (Fatir Gibran)", "cap_01_summary.png")
     add_capture_placeholder("CAP-02", "Tangkapan Layar: Kanvas Utuh DFD Level-1 Sistem Presensi (Fatir Gibran)", "cap_02_dfd.png")
-    add_capture_placeholder("CAP-03", "Tangkapan Layar: Form Entri Ancaman Spoofing / Tampering (Tio Armani)")
-    add_capture_placeholder("CAP-04", "Tangkapan Layar: Form Entri Ancaman Repudiation / DoS / EoP (Chadafya Putra Zulfikar)")
-    add_capture_placeholder("CAP-05", "Tangkapan Layar: Pengaturan Centang Ekspor Report (Tedy Permana Putra)")
+    add_capture_placeholder("CAP-03", "Tangkapan Layar: Form Entri Ancaman Spoofing / Tampering (Tio Armani)", "cap_03_tio.png")
+    add_capture_placeholder("CAP-04", "Tangkapan Layar: Form Entri Ancaman Repudiation / DoS / EoP (Chadafya Putra Zulfikar)", "cap_04_chadafya.png")
+    add_capture_placeholder("CAP-05", "Tangkapan Layar: Pengaturan Centang Ekspor Report (Tedy Permana Putra)", "cap_05_tedy.png")
     add_capture_placeholder("CAP-06", "Tangkapan Layar: Hasil Ekspor Laporan PDF Tool (Tedy Permana Putra)", "cap_06_pdf_p1.png")
 
     output_path = "Laporan_Threat_Modeling_Kasus_A_Presensi_QR.docx"
