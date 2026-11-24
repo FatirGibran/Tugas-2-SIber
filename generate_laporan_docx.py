@@ -26,24 +26,47 @@ def set_cell_margins(cell, top=100, bottom=100, left=150, right=150):
                       f'</w:tcMar>')
     tcPr.append(tcMar)
 
-def set_table_borders(table, color="D3D3D3"):
+def set_table_borders(table, border_color="718096", inside_h_color="CBD5E0", inside_v_color="E2E8F0"):
     tblPr = table._tbl.tblPr
+    for child in list(tblPr):
+        if child.tag.endswith('tblBorders'):
+            tblPr.remove(child)
     borders = parse_xml(f'<w:tblBorders {nsdecls("w")}>'
-                        f'<w:top w:val="single" w:sz="4" w:space="0" w:color="{color}"/>'
-                        f'<w:left w:val="none"/>'
-                        f'<w:bottom w:val="single" w:sz="6" w:space="0" w:color="{color}"/>'
-                        f'<w:right w:val="none"/>'
-                        f'<w:insideH w:val="single" w:sz="4" w:space="0" w:color="{color}"/>'
-                        f'<w:insideV w:val="none"/>'
+                        f'<w:top w:val="single" w:sz="6" w:space="0" w:color="{border_color}"/>'
+                        f'<w:left w:val="single" w:sz="6" w:space="0" w:color="{border_color}"/>'
+                        f'<w:bottom w:val="single" w:sz="6" w:space="0" w:color="{border_color}"/>'
+                        f'<w:right w:val="single" w:sz="6" w:space="0" w:color="{border_color}"/>'
+                        f'<w:insideH w:val="single" w:sz="4" w:space="0" w:color="{inside_h_color}"/>'
+                        f'<w:insideV w:val="single" w:sz="4" w:space="0" w:color="{inside_v_color}"/>'
                         f'</w:tblBorders>')
     tblPr.append(borders)
 
-def format_table(table, col_widths, headers, data, align_cols=None):
+def format_table(table, col_widths, headers, data, align_cols=None, border_color="718096", total_dxa=9360):
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    set_table_borders(table, "B0BEC5")
+    table.autofit = False
     
+    tblPr = table._tbl.tblPr
+    for child in list(tblPr):
+        if child.tag.endswith('tblW') or child.tag.endswith('tblLayout'):
+            tblPr.remove(child)
+    tblW = parse_xml(f'<w:tblW {nsdecls("w")} w:w="{total_dxa}" w:type="dxa"/>')
+    tblPr.append(tblW)
+    tblLayout = parse_xml(f'<w:tblLayout {nsdecls("w")} w:type="fixed"/>')
+    tblPr.append(tblLayout)
+
+    set_table_borders(table, border_color=border_color, inside_h_color="CBD5E0", inside_v_color="E2E8F0")
+    
+    sum_widths = sum(col_widths)
+    col_dxas = [int((w / sum_widths) * total_dxa) for w in col_widths]
+    col_dxas[-1] += total_dxa - sum(col_dxas)
+
     # Header row
-    hdr_cells = table.rows[0].cells
+    hdr_row = table.rows[0]
+    trPr = hdr_row._tr.get_or_add_trPr()
+    trPr.append(parse_xml(f'<w:tblHeader {nsdecls("w")}/>'))
+    trPr.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+
+    hdr_cells = hdr_row.cells
     for i, title in enumerate(headers):
         hdr_cells[i].text = title
         set_cell_background(hdr_cells[i], "1A365D")
@@ -58,7 +81,10 @@ def format_table(table, col_widths, headers, data, align_cols=None):
 
     # Data rows
     for r_idx, row_data in enumerate(data):
-        row_cells = table.rows[r_idx + 1].cells
+        row = table.rows[r_idx + 1]
+        r_trPr = row._tr.get_or_add_trPr()
+        r_trPr.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+        row_cells = row.cells
         bg_col = "F8FAFC" if r_idx % 2 == 1 else "FFFFFF"
         for c_idx, val in enumerate(row_data):
             row_cells[c_idx].text = str(val)
@@ -68,16 +94,25 @@ def format_table(table, col_widths, headers, data, align_cols=None):
             if align_cols and c_idx in align_cols:
                 p.alignment = align_cols[c_idx]
             else:
-                p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                if len(str(val)) > 35:
+                    p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+                else:
+                    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
             for run in p.runs:
                 run.font.size = Pt(9)
                 run.font.name = "Calibri"
                 run.font.color.rgb = RGBColor(45, 55, 72)
 
-    # Set column widths
+    # Set column and cell widths explicitly
     for row in table.rows:
-        for i, w in enumerate(col_widths):
-            row.cells[i].width = Inches(w)
+        for i, w_dxa in enumerate(col_dxas):
+            cell = row.cells[i]
+            cell.width = Inches(col_widths[i])
+            tcPr = cell._tc.get_or_add_tcPr()
+            for child in list(tcPr):
+                if child.tag.endswith('tcW'):
+                    tcPr.remove(child)
+            tcPr.append(parse_xml(f'<w:tcW {nsdecls("w")} w:w="{w_dxa}" w:type="dxa"/>'))
 
 def add_heading_1(doc, text):
     h = doc.add_paragraph()
@@ -119,6 +154,7 @@ def add_body_paragraph(doc, text, bold_prefix="", space_after=6):
     p = doc.add_paragraph()
     p.paragraph_format.space_after = Pt(space_after)
     p.paragraph_format.line_spacing = 1.15
+    p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     if bold_prefix:
         r_pre = p.add_run(bold_prefix)
         r_pre.font.name = "Calibri"
@@ -135,6 +171,7 @@ def add_bullet_point(doc, text, bold_prefix=""):
     p = doc.add_paragraph(style='List Bullet')
     p.paragraph_format.space_after = Pt(3)
     p.paragraph_format.line_spacing = 1.15
+    p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     if bold_prefix:
         r_pre = p.add_run(bold_prefix)
         r_pre.font.name = "Calibri"
@@ -147,12 +184,29 @@ def add_bullet_point(doc, text, bold_prefix=""):
     run.font.color.rgb = RGBColor(45, 55, 72)
     return p
 
-def add_threat_card(doc, tid, title, stride_type, element, likelihood, impact, score_text, severity, scenario, impact_desc, assumption, mitigation):
+def add_threat_card(doc, tid, title, stride_type, element, likelihood, impact, score_text, severity, scenario, impact_desc, assumption, mitigation, total_dxa=9360):
     # Container table for threat card
     table = doc.add_table(rows=6, cols=2)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    set_table_borders(table, "CBD5E0")
-    
+    table.autofit = False
+
+    tblPr = table._tbl.tblPr
+    for child in list(tblPr):
+        if child.tag.endswith('tblW') or child.tag.endswith('tblLayout'):
+            tblPr.remove(child)
+    tblW = parse_xml(f'<w:tblW {nsdecls("w")} w:w="{total_dxa}" w:type="dxa"/>')
+    tblPr.append(tblW)
+    tblLayout = parse_xml(f'<w:tblLayout {nsdecls("w")} w:type="fixed"/>')
+    tblPr.append(tblLayout)
+
+    set_table_borders(table, border_color="718096", inside_h_color="E2E8F0", inside_v_color="E2E8F0")
+
+    col_dxas = [4608, 4752] # 3.2 and 3.3 inches
+
+    for row in table.rows:
+        r_trPr = row._tr.get_or_add_trPr()
+        r_trPr.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+
     # Header row
     hdr_cell = table.cell(0, 0)
     hdr_cell.merge(table.cell(0, 1))
@@ -213,6 +267,8 @@ def add_threat_card(doc, tid, title, stride_type, element, likelihood, impact, s
     r3.merge(table.cell(3, 1))
     set_cell_margins(r3, 80, 80, 120, 120)
     p_sc = r3.paragraphs[0]
+    p_sc.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_sc.paragraph_format.line_spacing = 1.15
     p_sc.add_run("Skenario Ancaman: ").font.bold = True
     p_sc.add_run(scenario)
     p_sc.runs[0].font.size = Pt(9.5)
@@ -223,6 +279,8 @@ def add_threat_card(doc, tid, title, stride_type, element, likelihood, impact, s
     r4.merge(table.cell(4, 1))
     set_cell_margins(r4, 80, 80, 120, 120)
     p_da = r4.paragraphs[0]
+    p_da.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_da.paragraph_format.line_spacing = 1.15
     p_da.add_run("Dampak: ").font.bold = True
     p_da.add_run(f"{impact_desc}\n")
     p_da.add_run("Asumsi Terkait: ").font.bold = True
@@ -236,16 +294,24 @@ def add_threat_card(doc, tid, title, stride_type, element, likelihood, impact, s
     set_cell_background(r5, "EDF2F7")
     set_cell_margins(r5, 90, 90, 120, 120)
     p_mit = r5.paragraphs[0]
+    p_mit.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_mit.paragraph_format.line_spacing = 1.15
     p_mit.add_run("Rekomendasi Mitigasi Teknis: ").font.bold = True
     p_mit.add_run(mitigation)
     p_mit.runs[0].font.size = Pt(9.5)
     p_mit.runs[0].font.color.rgb = RGBColor(26, 54, 93)
     p_mit.runs[1].font.size = Pt(9.5)
 
-    # Set column widths
+    # Set column and cell widths explicitly
     for row in table.rows:
-        row.cells[0].width = Inches(3.2)
-        row.cells[1].width = Inches(3.3)
+        for i, w_dxa in enumerate(col_dxas):
+            cell = row.cells[i]
+            cell.width = Inches(3.2 if i == 0 else 3.3)
+            tcPr = cell._tc.get_or_add_tcPr()
+            for child in list(tcPr):
+                if child.tag.endswith('tcW'):
+                    tcPr.remove(child)
+            tcPr.append(parse_xml(f'<w:tcW {nsdecls("w")} w:w="{w_dxa}" w:type="dxa"/>'))
 
     # Add spacing after table
     sp_p = doc.add_paragraph()
@@ -718,9 +784,26 @@ def build_laporan():
     ]
     format_table(lamp_table, [1.2, 2.3, 1.8, 1.2], lamp_headers, lamp_data)
 
-    def add_capture_placeholder(cap_code, cap_title, img_path=None):
+    def add_capture_placeholder(cap_code, cap_title, img_path=None, total_dxa=9360):
         box_table = doc.add_table(rows=2, cols=1)
         box_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        box_table.autofit = False
+
+        tblPr = box_table._tbl.tblPr
+        for child in list(tblPr):
+            if child.tag.endswith('tblW') or child.tag.endswith('tblLayout'):
+                tblPr.remove(child)
+        tblW = parse_xml(f'<w:tblW {nsdecls("w")} w:w="{total_dxa}" w:type="dxa"/>')
+        tblPr.append(tblW)
+        tblLayout = parse_xml(f'<w:tblLayout {nsdecls("w")} w:type="fixed"/>')
+        tblPr.append(tblLayout)
+
+        set_table_borders(box_table, border_color="718096", inside_h_color="E2E8F0", inside_v_color="none")
+
+        for row in box_table.rows:
+            r_trPr = row._tr.get_or_add_trPr()
+            r_trPr.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+
         c_hdr = box_table.cell(0, 0)
         set_cell_background(c_hdr, "2D3748")
         set_cell_margins(c_hdr, 80, 80, 120, 120)
@@ -733,19 +816,26 @@ def build_laporan():
         c_body = box_table.cell(1, 0)
         set_cell_background(c_body, "F7FAFC")
         set_cell_margins(c_body, 120, 120, 140, 140)
-        set_table_borders(box_table, "CBD5E0")
         pb = c_body.paragraphs[0]
         pb.alignment = WD_ALIGN_PARAGRAPH.CENTER
         if img_path and os.path.exists(img_path):
             rb_img = pb.add_run()
-            rb_img.add_picture(img_path, width=Inches(6.0))
+            rb_img.add_picture(img_path, width=Inches(6.1))
         else:
             rb_txt = pb.add_run(f"[Tempelkan screenshot {cap_title} di area ini]")
             rb_txt.font.italic = True
             rb_txt.font.color.rgb = RGBColor(160, 174, 192)
             rb_txt.font.size = Pt(9)
-        c_hdr.width = Inches(6.5)
-        c_body.width = Inches(6.5)
+
+        for row in box_table.rows:
+            cell = row.cells[0]
+            cell.width = Inches(6.5)
+            tcPr = cell._tc.get_or_add_tcPr()
+            for child in list(tcPr):
+                if child.tag.endswith('tcW'):
+                    tcPr.remove(child)
+            tcPr.append(parse_xml(f'<w:tcW {nsdecls("w")} w:w="{total_dxa}" w:type="dxa"/>'))
+
         doc.add_paragraph().paragraph_format.space_after = Pt(6)
 
     add_capture_placeholder("CAP-01", "Tangkapan Layar: Halaman Detail Model dan Kontributor (Fatir Gibran)", "cap_01_summary.png")

@@ -26,24 +26,47 @@ def set_cell_margins(cell, top=90, bottom=90, left=130, right=130):
                       f'</w:tcMar>')
     tcPr.append(tcMar)
 
-def set_table_borders(table, color="B0BEC5"):
+def set_table_borders(table, border_color="718096", inside_h_color="CBD5E0", inside_v_color="E2E8F0"):
     tblPr = table._tbl.tblPr
+    for child in list(tblPr):
+        if child.tag.endswith('tblBorders'):
+            tblPr.remove(child)
     borders = parse_xml(f'<w:tblBorders {nsdecls("w")}>'
-                        f'<w:top w:val="single" w:sz="4" w:space="0" w:color="{color}"/>'
-                        f'<w:left w:val="none"/>'
-                        f'<w:bottom w:val="single" w:sz="6" w:space="0" w:color="{color}"/>'
-                        f'<w:right w:val="none"/>'
-                        f'<w:insideH w:val="single" w:sz="4" w:space="0" w:color="{color}"/>'
-                        f'<w:insideV w:val="none"/>'
+                        f'<w:top w:val="single" w:sz="6" w:space="0" w:color="{border_color}"/>'
+                        f'<w:left w:val="single" w:sz="6" w:space="0" w:color="{border_color}"/>'
+                        f'<w:bottom w:val="single" w:sz="6" w:space="0" w:color="{border_color}"/>'
+                        f'<w:right w:val="single" w:sz="6" w:space="0" w:color="{border_color}"/>'
+                        f'<w:insideH w:val="single" w:sz="4" w:space="0" w:color="{inside_h_color}"/>'
+                        f'<w:insideV w:val="single" w:sz="4" w:space="0" w:color="{inside_v_color}"/>'
                         f'</w:tblBorders>')
     tblPr.append(borders)
 
-def format_table(table, col_widths, headers, data, align_cols=None):
+def format_table(table, col_widths, headers, data, align_cols=None, border_color="718096", total_dxa=9360):
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    set_table_borders(table, "B0BEC5")
-    
+    table.autofit = False
+
+    tblPr = table._tbl.tblPr
+    for child in list(tblPr):
+        if child.tag.endswith('tblW') or child.tag.endswith('tblLayout'):
+            tblPr.remove(child)
+    tblW = parse_xml(f'<w:tblW {nsdecls("w")} w:w="{total_dxa}" w:type="dxa"/>')
+    tblPr.append(tblW)
+    tblLayout = parse_xml(f'<w:tblLayout {nsdecls("w")} w:type="fixed"/>')
+    tblPr.append(tblLayout)
+
+    set_table_borders(table, border_color=border_color, inside_h_color="CBD5E0", inside_v_color="E2E8F0")
+
+    sum_widths = sum(col_widths)
+    col_dxas = [int((w / sum_widths) * total_dxa) for w in col_widths]
+    col_dxas[-1] += total_dxa - sum(col_dxas)
+
     # Header row
-    hdr_cells = table.rows[0].cells
+    hdr_row = table.rows[0]
+    trPr = hdr_row._tr.get_or_add_trPr()
+    trPr.append(parse_xml(f'<w:tblHeader {nsdecls("w")}/>'))
+    trPr.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+
+    hdr_cells = hdr_row.cells
     for i, title in enumerate(headers):
         hdr_cells[i].text = title
         set_cell_background(hdr_cells[i], "1A365D")
@@ -58,7 +81,10 @@ def format_table(table, col_widths, headers, data, align_cols=None):
 
     # Data rows
     for r_idx, row_data in enumerate(data):
-        row_cells = table.rows[r_idx + 1].cells
+        row = table.rows[r_idx + 1]
+        r_trPr = row._tr.get_or_add_trPr()
+        r_trPr.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+        row_cells = row.cells
         bg_col = "F8FAFC" if r_idx % 2 == 1 else "FFFFFF"
         for c_idx, val in enumerate(row_data):
             row_cells[c_idx].text = str(val)
@@ -68,16 +94,25 @@ def format_table(table, col_widths, headers, data, align_cols=None):
             if align_cols and c_idx in align_cols:
                 p.alignment = align_cols[c_idx]
             else:
-                p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                if len(str(val)) > 35:
+                    p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+                else:
+                    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
             for run in p.runs:
                 run.font.size = Pt(9)
                 run.font.name = "Calibri"
                 run.font.color.rgb = RGBColor(45, 55, 72)
 
-    # Set column widths
+    # Set column and cell widths explicitly
     for row in table.rows:
-        for i, w in enumerate(col_widths):
-            row.cells[i].width = Inches(w)
+        for i, w_dxa in enumerate(col_dxas):
+            cell = row.cells[i]
+            cell.width = Inches(col_widths[i])
+            tcPr = cell._tc.get_or_add_tcPr()
+            for child in list(tcPr):
+                if child.tag.endswith('tcW'):
+                    tcPr.remove(child)
+            tcPr.append(parse_xml(f'<w:tcW {nsdecls("w")} w:w="{w_dxa}" w:type="dxa"/>'))
 
 def add_heading_1(doc, text):
     h = doc.add_paragraph()
@@ -119,6 +154,7 @@ def add_body_paragraph(doc, text, bold_prefix="", space_after=5):
     p = doc.add_paragraph()
     p.paragraph_format.space_after = Pt(space_after)
     p.paragraph_format.line_spacing = 1.15
+    p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     if bold_prefix:
         r_pre = p.add_run(bold_prefix)
         r_pre.font.name = "Calibri"
@@ -135,6 +171,7 @@ def add_bullet_point(doc, text, bold_prefix=""):
     p = doc.add_paragraph(style='List Bullet')
     p.paragraph_format.space_after = Pt(3)
     p.paragraph_format.line_spacing = 1.15
+    p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     if bold_prefix:
         r_pre = p.add_run(bold_prefix)
         r_pre.font.name = "Calibri"
@@ -147,15 +184,40 @@ def add_bullet_point(doc, text, bold_prefix=""):
     run.font.color.rgb = RGBColor(45, 55, 72)
     return p
 
-def add_callout(doc, text, title="PERHATIAN TEKNIS"):
+def add_callout(doc, text, title="PERHATIAN TEKNIS", total_dxa=9360):
     table = doc.add_table(rows=1, cols=1)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    table.autofit = False
+
+    tblPr = table._tbl.tblPr
+    for child in list(tblPr):
+        if child.tag.endswith('tblW') or child.tag.endswith('tblLayout'):
+            tblPr.remove(child)
+    tblW = parse_xml(f'<w:tblW {nsdecls("w")} w:w="{total_dxa}" w:type="dxa"/>')
+    tblPr.append(tblW)
+    tblLayout = parse_xml(f'<w:tblLayout {nsdecls("w")} w:type="fixed"/>')
+    tblPr.append(tblLayout)
+
+    set_table_borders(table, border_color="D69E2E", inside_h_color="D69E2E", inside_v_color="D69E2E")
+
+    for row in table.rows:
+        r_trPr = row._tr.get_or_add_trPr()
+        r_trPr.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+
     cell = table.cell(0, 0)
     set_cell_background(cell, "FEFCBF") # subtle warm amber
     set_cell_margins(cell, top=100, bottom=100, left=140, right=140)
-    set_table_borders(table, "D69E2E")
+    cell.width = Inches(6.5)
+    tcPr = cell._tc.get_or_add_tcPr()
+    for child in list(tcPr):
+        if child.tag.endswith('tcW'):
+            tcPr.remove(child)
+    tcPr.append(parse_xml(f'<w:tcW {nsdecls("w")} w:w="{total_dxa}" w:type="dxa"/>'))
+
     p = cell.paragraphs[0]
     p.paragraph_format.space_after = Pt(0)
+    p.paragraph_format.line_spacing = 1.15
+    p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     rt = p.add_run(f"[{title}] ")
     rt.font.bold = True
     rt.font.size = Pt(9)
@@ -163,7 +225,7 @@ def add_callout(doc, text, title="PERHATIAN TEKNIS"):
     rb = p.add_run(text)
     rb.font.size = Pt(9)
     rb.font.color.rgb = RGBColor(116, 66, 16)
-    cell.width = Inches(6.5)
+    
     doc.add_paragraph().paragraph_format.space_after = Pt(4)
 
 def build_panduan():
